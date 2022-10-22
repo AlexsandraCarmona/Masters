@@ -1,0 +1,8 @@
+clc
+clear
+
+%Matriz de estado | State matrix
+A = [0.9843 0 0.0251 0;0 0.9892 0 0.0175;0 0 0.9747 0;0 0 0 0.9823];
+
+%Funcao que retorna os autovalores do sistema | %Function that returns the eigenvalues of the system
+values = eig(A);
