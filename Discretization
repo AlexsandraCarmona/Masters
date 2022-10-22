@@ -1,0 +1,15 @@
+clear
+clc
+
+%Matrizes do sistema | System matrices
+A =[-0.0112 0 0.0119 0; 0 -0.0112 0 0.0152; 0 0 -0.0119 0; 0 0 0 -0.0152];
+
+B = [0.0389 0; 0 0.0382; 0 0.0325; 0.0318 0];
+
+C = [1 0 0 0; 0 1 0 0];
+
+%Funcao que cria o modelo no espaco de estados | Function that creates the space-state model
+sysc = ss(A,B,C,[]);
+
+%Funcao que discretiza o modelo criado | function discretizes the continuous-time dynamic system model
+sysd = c2d(sysc,0.05,'tustin');
