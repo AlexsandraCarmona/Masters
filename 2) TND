@@ -1,0 +1,26 @@
+clc
+clear
+
+%Elementos nao nulos das matrizes do sistema | Non-zero elements of the system matrices
+A = [0.999440156756108 0.000594656536315388 0.999440156756108 0.000759498650080291 0.999405176959855 0.999240288690298];
+B = [0.00194445555244532 0.00190946534970208 0.00162451670627988 0.00158939602950879];
+C = [1 1];
+
+%Calculando a media dos elementos nao-nulos | Calculating the average of non-zero elements
+MU_A = sum(A)/6;
+MU_B = sum(B)/4;
+MU_C = sum(C)/2;
+
+%Calculando a variancia | Calculating the variance
+SIGMA_A = var(A);
+SIGMA_B = var(B);
+SIGMA_C = var(C);
+
+%Calculando a TND | Calculating the TND
+pd = makedist('normal','mu',MU_A,'sigma',SIGMA_A);
+
+t = truncate(pd,min(A),max(A));
+
+r = random(t,1000,1); 
+%Sortear e escolher os elementos mais proximos dos elementos da matriz original para gerar uma melhor resposta
+%Sort and choose the elements closest to the elements of the original matrix to generate a better answer
