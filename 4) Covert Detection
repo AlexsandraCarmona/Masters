@@ -703,8 +703,7 @@ for k=1:500
     end
 
     %Calculando a perturbacao | Calculating the disturbance
-    DT(1,k+1) = -(C(1,:,1)*(B1(:,:)*(ua(1:2,k))));
-    DT(2,k+1) = -(C(2,:,1)*(B1(:,:)*(ua(1:2,k))));
+    
 
     %Aplicando o sinal de ataque na entrada | Aplying the attack signal on the input 
     if (k>=50)&&(k<=300)
