@@ -18,9 +18,9 @@ B(:,:,1) = B1;
 B(:,:,2) = B2;
 B(:,:,3) = B3;
 
-D1 = [0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5;];
-D2 = [0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5;];
-D3 = [0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5;];
+D1 = [0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5];
+D2 = [0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5];
+D3 = [0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5];
 D(:,:,1) = D1;
 D(:,:,2) = D2;
 D(:,:,3) = D3;
@@ -398,6 +398,14 @@ for k=1:500
         end
     end
 
+    %Calculando a perturbacao | Calculating the disturbance
+    
+    DT(1,k) = y(3,k)-(C(1,:,Teta(k))*xE(:,k));
+    DT(2,k) = y(4,k)-(C(2,:,Teta(k))*xE(:,k));
+
+    DT(1,k) = abs(DT(1,k));
+    DT(2,k) = abs(DT(2,k));
+   
     %Filtro de Kalman Planta Auxiliar
     if (Teta(k+1)==1)
         CE = [PE_Aux(1,1,1,k) PE_Aux(1,2,1,k) PE_Aux(1,3,1,k) PE_Aux(1,4,1,k) 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;...
@@ -690,24 +698,30 @@ for k=1:500
         v(4,k) = 0.2;
 
         %Ganho do controlador do ataque | Attack controller gain
-        K_AT = [-412.6007 0.0862 -0.3716 0.1785
+        K_AT = [-412.6007 0.0862 -0.3716 0.1785;
                 0.1295 -412.7737 0.3532 -0.5058];
+
+        %Ganho de Kalman | Kalman gain
+        L = [0.715483880183128	0.000435721655076703;
+             0.000556258347160035	0.715483907268466;
+             -9.84221132654876e-05	0.602512626188151;
+             0.602344367011987	-5.82654340651749e-05];
         
-        ua(1,k) = K_AT(1,:)*(xE(:,k)+v(1,k));
-        ua(2,k) = K_AT(1,:)*(xE(:,k)+v(2,k));
-        xa_P(:,k+1) = (A1(:,:)*xE(:,k))+(B1(:,:)*(ua(1:2,k)));
-        ua(3,k) = K_AT(1,:)*(xE_Aux(:,k)+v(3,k));
-        ua(4,k) = K_AT(1,:)*(xE_Aux(:,k)+v(4,k));
-        xa_A(:,k+1) = (A1(:,:)*xE_Aux(:,k))+(B1(:,:)*(ua(3:4,k)));
+        ua(1,k) = K_AT(1,:)*(xa_P(:,k)+v(1,k));
+        ua(2,k) = K_AT(1,:)*(xa_P(:,k)+v(2,k));
+        xa_P(:,k+1) = (A1(:,:)*xa_P(:,k))+(B1(:,:)*(ua(1:2,k)))+L*(y(1:2,k)-C1*(xa_P(:,k)));
+
+        ua(3,k) = K_AT(1,:)*(xa_A(:,k)+v(3,k));
+        ua(4,k) = K_AT(1,:)*(xa_A(:,k)+v(4,k));
+        xa_A(:,k+1) = (A1(:,:)*xa_A(:,k))+(B1(:,:)*(ua(3:4,k)))+L*(y(3:4,k)-C1*(xa_A(:,k)));
 
     end
 
-    %Calculando a perturbacao | Calculating the disturbance
+    %Salvando o sinal de controle sem ataque | Saving the attack free control signal
+    u1(:,k) = u(:,k);
     
-
     %Aplicando o sinal de ataque na entrada | Aplying the attack signal on the input 
     if (k>=50)&&(k<=300)
-        u1(:,k) = u(:,k);
         u(1,k) = u(1,k) + ua(1,k);
         u(2,k) = u(2,k) + ua(2,k);
         u(3,k) = u(3,k) + ua(3,k);
@@ -747,7 +761,7 @@ for k=1:500
             y(3:4,k+1)= y(3:4,k+1)-(C(:,:,1)*(B1(:,:)*(ua(3:4,k))));
         end
     end
-
+    
 end
 
 %Plotando os resultados | Plotting the results
